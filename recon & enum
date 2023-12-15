@@ -1,0 +1,12 @@
+webapp pentest
+
+to list ditrectories
+
+* DIRB
+cmd > dirb http://www.website.com -r -z 100
+
+-r == non-recursively
+-z 100 == time delay to each request
+
+* BURPSUITE -gui
+* NIKTO - cli
